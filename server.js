@@ -31,8 +31,21 @@ async function run() {
     });
     //Find all customer data from here
     app.get("/customerDetails", async (req, res) => {
-      const result = await usersInfo.find({}).toArray();
-      res.json(result);
+      console.log(req.query);
+      const cursor = usersInfo.find({})
+      const page=req.query.page;
+      const size =parseInt( req.query.size);
+      let result;
+      const count =await cursor.count()
+      if(page){
+        result = await cursor.skip(page*size).limit(size).toArray();
+      }
+      else{
+        result = await cursor.toArray();
+      }
+      
+      
+      res.json({count,result});
     });
 
     //remove customer data from database
