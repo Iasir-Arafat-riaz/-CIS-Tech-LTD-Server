@@ -19,17 +19,18 @@ async function run() {
   try {
     await client.connect();
     const database = client.db("CIS-Tech-LTD");
-    const users = database.collection("customerInfor");
+    const usersInfo = database.collection("customerInfor");
+    const  users= database.collection("users");
 
     // add customer details from here
     app.post("/customerDetails", async (req, res) => {
       console.log(req.body);
-      const result = await users.insertOne(req.body);
+      const result = await usersInfo.insertOne(req.body);
       res.json(result);
     });
     //Find all customer data from here
     app.get("/customerDetails", async (req, res) => {
-      const result = await users.find({}).toArray();
+      const result = await usersInfo.find({}).toArray();
       res.json(result);
     });
 
@@ -38,12 +39,16 @@ async function run() {
         const selectedInfo = req.params.id;
         console.log(selectedInfo);
         const remove = { _id: ObjectId(selectedInfo) };
-        const result = await users.deleteOne(remove);
+        const result = await usersInfo.deleteOne(remove);
         res.json(result);
     })
 
     //Registration
-
+    app.post("/register", async (req, res) => {
+        console.log(req.body);
+        // const result = await users.insertOne(req.body);
+        // res.json(result);
+      });
 
   } finally {
     //   await client.close();
