@@ -5,7 +5,8 @@ const app = express();
 const ObjectId = require("mongodb").ObjectId;
 require("dotenv").config();
 const port = process.env.PORT || 5000;
-
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 app.use(cors());
 app.use(express.json());
 
@@ -20,7 +21,7 @@ async function run() {
     await client.connect();
     const database = client.db("CIS-Tech-LTD");
     const usersInfo = database.collection("customerInfor");
-    const  users= database.collection("users");
+    const users = database.collection("users");
 
     // add customer details from here
     app.post("/customerDetails", async (req, res) => {
@@ -35,21 +36,58 @@ async function run() {
     });
 
     //remove customer data from database
-    app.delete("/customerDetails/:id",async(req,res)=>{
-        const selectedInfo = req.params.id;
-        console.log(selectedInfo);
-        const remove = { _id: ObjectId(selectedInfo) };
-        const result = await usersInfo.deleteOne(remove);
-        res.json(result);
-    })
+    app.delete("/customerDetails/:id", async (req, res) => {
+      const selectedInfo = req.params.id;
+      console.log(selectedInfo);
+      const remove = { _id: ObjectId(selectedInfo) };
+      const result = await usersInfo.deleteOne(remove);
+      res.json(result);
+    });
 
+    //trying to emplement authentication with jwt token
     //Registration
-    app.post("/register", async (req, res) => {
-        console.log(req.body);
-        // const result = await users.insertOne(req.body);
-        // res.json(result);
-      });
-
+    // app.post("/register", async (req, res) => {
+    //   //use bcrypt for secure user password
+    //   const hashPass = await bcrypt.hash(req.body.pass, 10);
+    //   console.log(req.body);
+    //   const registerUser = {
+    //     name: req.body.name,
+    //     email: req.body.email,
+    //     pass: hashPass,
+    //   };
+    //   const result = await users.insertOne(registerUser);
+    //   res.json(result);
+    // });
+    //Login with jwt
+    // app.post("/login", async (req, res) => {
+    //   console.log(req.body);
+    //   const user = await users.find({ email: req.body.email });
+    //   if (user && user.length > 0) {
+    //     const isValidPassword = await bcrypt.compare(
+    //       req.body.pass,
+    //       user.pass
+    //     );
+    //     console.log(isValidPassword,user);
+    //     if (isValidPassword) {
+    //       //generate token
+    //       const token = jwt.sign(
+    //         { email: user.email, userId: user._id },
+    //         process.env.JWT_SECRET,
+    //         {
+    //           expiresIn: "1h",
+    //         }
+    //       );
+    //       res.status(200).json({
+    //         "access-token": token,
+    //         message: "login successful",
+    //       });
+    //     } else {
+    //       res.status(401).json({ "error": "Authentication failed" });
+    //     }
+    //   } else {
+    //     res.status(401).json({ "error": "Authentication failed" });
+    //   }
+    // });
   } finally {
     //   await client.close();
   }
